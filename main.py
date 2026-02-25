@@ -126,3 +126,9 @@ def query(request: QueryRequest):
         return QueryResponse(answer=response.content.strip(), session_id=request.session_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
