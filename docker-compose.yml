@@ -8,16 +8,25 @@ services:
     env_file:
       - .env
     volumes:
-      - ./vectorstore:/app/vectorstore   # persist ChromaDB between restarts
+      - vectordata:/app/vectorstore
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   frontend:
     build: .
-    command: streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+    command: streamlit run app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true
     ports:
       - "8501:8501"
     env_file:
       - .env
     environment:
-      - API_BASE_URL=http://api:8000     # talk to the api service by name
+      - API_BASE_URL=http://api:8000
     depends_on:
-      - api
+      api:
+        condition: service_started
+
+volumes:
+  vectordata:

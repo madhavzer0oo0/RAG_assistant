@@ -1,6 +1,7 @@
 # API & server
 fastapi
 uvicorn[standard]
+python-multipart
 
 # LangChain
 langchain
