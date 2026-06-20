@@ -93,14 +93,6 @@ def process_and_store(docs, session_id, source_name, source_type):
     bm25_retriever = BM25Retriever.from_documents(chunks)
     bm25_retriever.k = 6
 
-# TEST BM25
-    docs = bm25_retriever.invoke("refund policy")
-
-    print("\n===== BM25 RESULTS =====")
-    for i, doc in enumerate(docs):
-       print(f"\nDOC {i+1}")
-       print(doc.page_content[:300])
-
     hybrid_retriever = EnsembleRetriever(
     retrievers=[
         bm25_retriever,
