@@ -7,10 +7,13 @@ from bs4 import BeautifulSoup
 import requests
 
 from langchain_core.documents import Document
+from langchain_community.retrievers.bm25 import BM25Retriever
+from langchain_classic.retrievers.ensemble import EnsembleRetriever
 
 from rag.splitter import get_splitter
 from rag.vectorstore import get_or_create_chroma, add_texts_to_chroma
 from rag.embeddings import STEmbeddingWrapper
+
 
 
 def get_url_hash(url: str):
@@ -83,8 +86,30 @@ def process_and_store(docs, session_id, source_name, source_type):
     persist_path = f"vectorstore/{session_id}"
     db = get_or_create_chroma(persist_path, embed_fn)
     add_texts_to_chroma(db, texts, metadatas)
-
-    return db.as_retriever(
-        search_type="mmr",
-        search_kwargs={"k": 6, "fetch_k": 20},
+    vector_retriever = db.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 6, "fetch_k": 20},
     )
+    bm25_retriever = BM25Retriever.from_documents(chunks)
+    bm25_retriever.k = 6
+
+# TEST BM25
+    docs = bm25_retriever.invoke("refund policy")
+
+    print("\n===== BM25 RESULTS =====")
+    for i, doc in enumerate(docs):
+       print(f"\nDOC {i+1}")
+       print(doc.page_content[:300])
+
+    hybrid_retriever = EnsembleRetriever(
+    retrievers=[
+        bm25_retriever,
+        vector_retriever
+    ],
+    weights=[0.4, 0.6]
+)
+
+    return hybrid_retriever
+
+
+    

@@ -605,7 +605,7 @@ if not st.session_state["indexed"]:
 else:
     # Display chat history
     for msg in st.session_state["chat_history"]:
-        with st.chat_message(msg["role"], avatar="🧑" if msg["role"] == "user" else "⬡"):
+        with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
             if msg.get("sources"):
                 with st.expander(f"📎 {len(msg['sources'])} source chunks referenced"):
@@ -626,11 +626,11 @@ else:
     if prompt := st.chat_input("Ask anything about your documents..."):
         # Show user message
         st.session_state["chat_history"].append({"role": "user", "content": prompt})
-        with st.chat_message("user", avatar="🧑"):
+        with st.chat_message("user"):
             st.markdown(prompt)
 
         # Stream assistant response
-        with st.chat_message("assistant", avatar="⬡"):
+        with st.chat_message("assistant"):
             st.session_state["_pending_sources"] = []
             response = st.write_stream(api_query_stream(prompt))
 
